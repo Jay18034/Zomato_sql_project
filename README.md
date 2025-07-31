@@ -84,27 +84,38 @@ SET total_amount = COALESCE(total_amount, 0);
 
 ## Business Problems Solved
 
-### 1. Write a query to find the top 5 most frequently ordered dishes by customer called "Arjun Mehta" in the last 1 year.
+### 1. List the top 5 most frequently ordered dishes by Arjun Mehta for each year, based on the total number of orders placed.
 
 ```sql
 SELECT 
     customer_name,
-    dishes,
+    order_year,
+    dish_name,
     total_orders
 FROM (
     SELECT 
-        c.customer_name,
-        o.order_item AS dishes,
-        COUNT(*) AS total_orders,
-        DENSE_RANK() OVER (ORDER BY COUNT(*) DESC) AS rank
-    FROM orders o
-    JOIN customers c ON c.customer_id = o.customer_id
-    WHERE 
-        o.order_date >= CURDATE() - INTERVAL 1 YEAR
-        AND c.customer_name = 'Arjun Mehta'
-    GROUP BY c.customer_name, o.order_item
-) AS ranked_orders
-WHERE rank <= 5;
+        customer_name,
+        order_year,
+        dish_name,
+        total_orders,
+        DENSE_RANK() OVER (
+            PARTITION BY order_year
+            ORDER BY total_orders DESC
+        ) AS rnk
+    FROM (
+        SELECT 
+            c.customer_name,
+            YEAR(o.order_date) AS order_year,
+            o.order_item       AS dish_name,
+            COUNT(*)           AS total_orders
+        FROM orders o
+        JOIN customers c ON c.customer_id = o.customer_id
+        WHERE c.customer_name = 'Arjun Mehta'
+        GROUP BY c.customer_name, YEAR(o.order_date), o.order_item
+    ) AS yearly_counts
+) AS ranked
+WHERE rnk <= 5
+ORDER BY order_year, total_orders DESC;
 ```
 
 ### 2. Popular Time Slots
