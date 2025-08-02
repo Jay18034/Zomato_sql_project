@@ -167,29 +167,18 @@ HAVING total_spent > 100000;
 
 ```sql
 -- Approach 1
+
 SELECT 
     r.restaurant_name,
     r.city,
-    COUNT(o.order_id) AS cnt_not_delivered_orders
+    COUNT(o.order_id) AS not_delivered
 FROM orders o
-LEFT JOIN restaurants r ON r.restaurant_id = o.restaurant_id
-LEFT JOIN deliveries d ON d.order_id = o.order_id
-WHERE d.delivery_id IS NULL
+JOIN restaurants r ON o.restaurant_id = r.restaurant_id
+LEFT JOIN deliveries d ON o.order_id = d.order_id
+WHERE d.delivery_id IS NULL OR d.delivery_status != 'Delivered'
 GROUP BY r.restaurant_name, r.city
-ORDER BY cnt_not_delivered_orders DESC;
+ORDER BY not_delivered DESC;
 
--- Approach 2
--- ✅ Query: Orders placed but not delivered (Alternative approach using NOT IN)
-SELECT 
-    r.restaurant_name,
-    COUNT(*) AS cnt_not_delivered_orders
-FROM orders o
-LEFT JOIN restaurants r ON r.restaurant_id = o.restaurant_id
-WHERE o.order_id NOT IN (
-    SELECT order_id FROM deliveries
-)
-GROUP BY r.restaurant_name
-ORDER BY cnt_not_delivered_orders DESC;
 ```
 
 
