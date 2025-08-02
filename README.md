@@ -166,7 +166,6 @@ HAVING total_spent > 100000;
 -- Return each restuarant name, city and number of not delivered orders 
 
 ```sql
--- Approach 1
 
 SELECT 
     r.restaurant_name,
