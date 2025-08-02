@@ -182,7 +182,7 @@ ORDER BY not_delivered DESC;
 
 
 ### 6. Restaurant Revenue Ranking: 
--- Rank restaurants by their total revenue from the last year, including their name, 
+-- Rank restaurants by their total revenue from the last year(based on the latest order date). Return each restaurant's name, city, total revenue, and rank within -- their city
 -- total revenue, and rank within their city.
 
 ```sql
