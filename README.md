@@ -210,18 +210,24 @@ WHERE rank = 1;
 -- Identify the most popular dish in each city based on the number of orders.
 
 ```sql
-SELECT * 
-FROM (
-	SELECT 
-		r.city,
-		o.order_item AS dish,
-		COUNT(o.order_id) AS total_orders,
-		RANK() OVER (PARTITION BY r.city ORDER BY COUNT(o.order_id) DESC) AS rank
-	FROM orders o
-	JOIN restaurants r ON r.restaurant_id = o.restaurant_id
-	GROUP BY r.city, o.order_item
-) t1
-WHERE rank = 1;
+WITH most_orders AS
+(
+SELECT 
+	r.city,
+    o.order_item as dish,
+    COUNT(o.order_id) AS total_orders,
+    DENSE_RANK() OVER (PARTITION BY r.city ORDER BY COUNT(o.order_id) DESC ) AS rnk
+FROM restaurants r
+JOIN orders o ON r.restaurant_id=o.restaurant_id
+GROUP BY 1,2
+)
+SELECT 
+	city,
+    dish,
+    total_orders
+FROM most_orders
+WHERE rnk = 1;
+
 ```
 
 ### 8. Customer Churn: 
