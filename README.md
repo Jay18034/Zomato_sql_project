@@ -185,10 +185,7 @@ ORDER BY not_delivered DESC;
 -- Rank restaurants by their total revenue from the last year(based on the latest order date). Return each restaurant's name, city, total revenue, and rank within their city
 
 ```sql
-WITH latest_date AS (
-    SELECT MAX(order_date) AS max_date FROM orders
-),
-ranking_table AS (
+WITH ranking_table AS (
     SELECT 
         r.city,
         r.restaurant_name,
@@ -196,11 +193,10 @@ ranking_table AS (
         RANK() OVER (PARTITION BY r.city ORDER BY SUM(o.total_amount) DESC) AS rank
     FROM orders o
     JOIN restaurants r ON r.restaurant_id = o.restaurant_id
-    JOIN latest_date ld ON 1=1
-    WHERE o.order_date >= ld.max_date - INTERVAL 1 YEAR
+    WHERE o.order_date >= (SELECT MAX(order_date) FROM orders) - INTERVAL 1 YEAR
     GROUP BY r.city, r.restaurant_name
 )
-SELECT *
+SELECT city, restaurant_name, revenue
 FROM ranking_table
 WHERE rank = 1;
 
