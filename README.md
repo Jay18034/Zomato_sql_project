@@ -388,12 +388,12 @@ FROM (
         r.restaurant_name,
         DAYNAME(o.order_date) AS day,
         COUNT(o.order_id) AS total_orders,
-        RANK() OVER (PARTITION BY r.restaurant_name ORDER BY COUNT(o.order_id) DESC) AS rank
+        RANK() OVER (PARTITION BY r.restaurant_name ORDER BY COUNT(o.order_id) DESC) AS peak_day
     FROM orders o
     JOIN restaurants r ON o.restaurant_id = r.restaurant_id
     GROUP BY r.restaurant_name, DAYNAME(o.order_date)
 ) AS t
-WHERE rank = 1;
+WHERE peak_day = 1;
 ```
 
 ### 15. Customer Lifetime Value (CLV): 
